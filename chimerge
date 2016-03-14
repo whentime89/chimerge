@@ -1,0 +1,32 @@
+chimerge=function(data,begin=1000,end=5)    #data为两列，第一列为实数变量，第二列为取值为0,1的因变量
+                                            #begin表示初始化分段数量,end表示分类数量 
+{
+  breaks=seq(min(data[,1]),max(data[,1]),(max(data[,1])-min(data[,1]))/begin)  #划分初始区间
+  data[,3]=cut(data[,1],breaks)        #将数值型变量变成分类变量
+  tj1=table(data[data[,2]==1,3])       
+  tj0=table(data[data[,2]==0,3])
+ 
+  while(length(breaks)>(end+1))
+  {  
+    kafang=c()
+    for (i in 1:(length(breaks)-2))          #算出每个区间与下一个区间的卡方值
+{a=tj1[i]
+ b=tj1[i+1]
+ c=tj0[i]
+ d=tj0[i+1]
+ if (a+b==0 || d+c==0 || a+c==0 || b+d==0)
+ kafang[i]=0
+ else
+ kafang[i]=(((a/1)*d-(b/1)*c)^2*(a+b+c+d)/(a+b)/(d+c)/(a+c)/(b+d))          
+}
+     
+     index=which(kafang==min(kafang))[1]         #区间最小卡方值的下标
+     breaks=breaks[-(index+1)]                   #合并两个区间
+     tj1[index]=tj1[index]+tj1[index+1]            
+     tj0[index]=tj0[index]+tj0[index+1]
+     tj1=tj1[-(index+1)]
+     tj0=tj0[-(index+1)]
+     
+  }
+  breaks
+}
